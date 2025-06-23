@@ -52,7 +52,7 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Dashboard",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
@@ -67,6 +67,25 @@ const data = {
         },
         {
           title: "Settings",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Configuración",
+      url: "#",
+      icon: Bot,
+      items: [
+        {
+          title: "Unidad Orgnica",
+          url: "/configuracion/unidad-organica",
+        },
+        {
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
           url: "#",
         },
       ],

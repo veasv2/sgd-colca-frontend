@@ -32,7 +32,7 @@ import {
 // Ya no se necesita useToast
 
 // Importa el formulario
-import { UnidadOrganicaForm } from "./unidad-organica-form";
+import { UnidadOrganicaForm } from "./unidad-organica.form";
 
 
 interface UnidadesTableProps {

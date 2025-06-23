@@ -1,6 +1,6 @@
 // En app/dashboard/unidades/page.tsx
 import { getUnidadesOrganicas } from "@/lib/api"; // Asegúrate que la ruta sea correcta
-import { UnidadesTable } from "./_components/unidades-table"; // Crearemos este componente a continuación
+import { UnidadesTable } from "./_components/unidad-organica.table"; // Crearemos este componente a continuación
 
 export default async function UnidadesPage() {
     // Obtenemos los datos en el servidor
