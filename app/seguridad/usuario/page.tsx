@@ -15,7 +15,6 @@ export default async function UsuarioPage() {
     // Obtenemos los datos en el servidor
     const userList = userListSchema.parse(users)
 
-    const unidades = await getUnidadesOrganicas();
     return (
         <UsersProvider>
             <Main>
