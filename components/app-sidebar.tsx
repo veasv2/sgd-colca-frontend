@@ -81,8 +81,8 @@ const data = {
           url: "/configuracion/unidad-organica",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Usuario",
+          url: "/seguridad/usuario",
         },
         {
           title: "Quantum",
