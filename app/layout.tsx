@@ -2,13 +2,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AppSidebar } from "@/components/app-sidebar"
-import { TopBar } from "@/components/top-bar"
+import { AppSidebar } from "@/components/layout/app-sidebar"
+import { AppTopBar } from "@/components/layout/app-top-bar"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { Providers } from '@/components/providers'
+import { AppProviders } from '@/context/app-providers'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
+        <AppProviders>
           <SidebarProvider
             suppressHydrationWarning
             style={
@@ -45,13 +45,13 @@ export default function RootLayout({
           >
             <AppSidebar variant="inset" />
             <SidebarInset className="border-0"> {/* 👈 AGREGUÉ border-0 */}
-              <TopBar />
+              <AppTopBar />
               <div className="flex flex-1 flex-col">
                   {children}
               </div>
             </SidebarInset>
           </SidebarProvider>
-        </Providers>
+        </AppProviders>
       </body>
     </html>
   );

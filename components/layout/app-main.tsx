@@ -6,7 +6,7 @@ interface MainProps extends React.HTMLAttributes<HTMLElement> {
   ref?: React.Ref<HTMLElement>
 }
 
-export const Main = ({ fixed, className, ...props }: MainProps) => {
+export const AppMain = ({ fixed, className, ...props }: MainProps) => {
   return (
     <main
       className={cn(
@@ -20,4 +20,4 @@ export const Main = ({ fixed, className, ...props }: MainProps) => {
   )
 }
 
-Main.displayName = 'Main'
+AppMain.displayName = 'Main'

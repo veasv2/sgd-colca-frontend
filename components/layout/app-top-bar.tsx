@@ -35,7 +35,7 @@ interface TopBarProps {
   }
 }
 
-export function TopBar({ user }: TopBarProps) {
+export function AppTopBar({ user }: TopBarProps) {
   const { theme, setTheme } = useTheme()
   const { toggleSidebar } = useSidebar()
 

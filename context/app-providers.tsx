@@ -9,6 +9,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { ThemeProvider } from '@/context/theme-context'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -68,19 +69,21 @@ interface ProvidersProps {
   children: React.ReactNode
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function AppProviders({ children }: ProvidersProps) {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider
+        <NextThemesProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+          <ThemeProvider>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </NextThemesProvider>
       </QueryClientProvider>
     </StrictMode>
   )

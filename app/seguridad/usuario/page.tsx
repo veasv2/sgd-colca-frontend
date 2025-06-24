@@ -5,7 +5,7 @@ import { users } from '@/mock/seguridad/mock-usuario'
 import { userListSchema } from '@/schemas/seguridad/usuario-schema'
 import { columns } from './_components/usuario-table-column'
 import UsersProvider from './_context/usuario-context'
-import { Main } from '@/components/layout/main'
+import { AppMain } from '@/components/layout/app-main'
 import { ThemeSwitch } from './theme-switch'
 import { Header } from './header'
 import { ProfileDropdown } from './profile-dropdown'
@@ -17,7 +17,7 @@ export default async function UsuarioPage() {
 
     return (
         <UsersProvider>
-            <Main>
+            <AppMain>
                 <div className='mb-2 flex flex-wrap items-center justify-between space-y-2'>
                     <div>
                         <h2 className='text-2xl font-bold tracking-tight'>User List</h2>
@@ -30,7 +30,7 @@ export default async function UsuarioPage() {
                 <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
                     <UsersTable data={userList} columns={columns} />
                 </div>
-            </Main>
+            </AppMain>
         </UsersProvider>
     );
 }
