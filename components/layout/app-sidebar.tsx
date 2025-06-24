@@ -17,7 +17,8 @@ import {
 import { AppNavMain } from '@/components/layout/app-nav-main'
 import { AppNavProjects } from '@/components/layout/app-nav-projects'
 import { AppNavUser } from '@/components/layout/app-nav-user'
-import { TeamSwitcher } from '@/components/team-switcher'
+
+import { TeamSwitcher } from '@/components/layout/team-switcher'
 import {
   Sidebar,
   SidebarContent,
