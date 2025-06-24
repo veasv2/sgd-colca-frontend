@@ -2,7 +2,7 @@
 
 import { Row } from '@tanstack/react-table'
 import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react'
-import { DataTableRowActions, RowAction } from '@/components/data-table/data-table-row-actions'
+import { DataTableRowActions, RowAction } from '@/components/table/table-row-actions'
 import { useUsers } from '../_context/usuario-context'
 import { User } from '@/schemas/seguridad/usuario-schema'
 

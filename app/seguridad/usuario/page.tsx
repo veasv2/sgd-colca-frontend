@@ -6,10 +6,7 @@ import { userListSchema } from '@/schemas/seguridad/usuario-schema'
 import { columns } from './_components/usuario-table-column'
 import UsersProvider from './_context/usuario-context'
 import { AppMain } from '@/components/layout/app-main'
-import { ThemeSwitch } from './theme-switch'
-import { Header } from './header'
-import { ProfileDropdown } from './profile-dropdown'
-import { UsersPrimaryButtons } from './users-primary-buttons'
+import { UsuarioBarButtons } from './_components/usuario-bar-buttons'
 
 export default async function UsuarioPage() {
     // Obtenemos los datos en el servidor
@@ -25,7 +22,7 @@ export default async function UsuarioPage() {
                             Manage your users and their roles here.
                         </p>
                     </div>
-                    <UsersPrimaryButtons />
+                    <UsuarioBarButtons />
                 </div>
                 <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12'>
                     <UsersTable data={userList} columns={columns} />

@@ -11,7 +11,7 @@ import { UnidadOrganica } from "@/lib/types";
 import { deleteUnidadOrganica } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/data-table/data-table";
+import { DataTable } from "@/components/table/table";
 import {
   DropdownMenu,
   DropdownMenuContent,

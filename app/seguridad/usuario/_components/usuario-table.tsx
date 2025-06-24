@@ -25,7 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { User } from '@/schemas/seguridad/usuario-schema'
-import { DataTablePagination } from '@/components/data-table/data-table-pagination'
+import { DataTablePagination } from '@/components/table/table-pagination'
 import { DataTableToolbar } from './usuario-table-toolbar'
 
 declare module '@tanstack/react-table' {

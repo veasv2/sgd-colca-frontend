@@ -4,10 +4,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import LongText from '@/components/long-text'
+import LongText from '@/components/ui/long-text'
 import { callTypes, userTypes } from '../data/usuario-data'
 import { User } from '@/schemas/seguridad/usuario-schema'
-import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
+import { DataTableColumnHeader } from '@/components/table/table-column-header'
 import { UsuarioRowActions } from './usuario-table-row-action'
 
 export const columns: ColumnDef<User>[] = [
