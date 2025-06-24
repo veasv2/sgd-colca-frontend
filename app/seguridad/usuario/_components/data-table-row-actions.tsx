@@ -12,8 +12,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useUsers } from '../context/users-context'
-import { User } from '../data/schema'
+import { useUsers } from '../_context/usuario-context'
+import { User } from '@/schemas/seguridad/usuario-schema'
 
 interface DataTableRowActionsProps {
   row: Row<User>

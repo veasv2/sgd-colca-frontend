@@ -4,7 +4,7 @@ export const users = Array.from({ length: 20 }, () => {
   const firstName = faker.person.firstName()
   const lastName = faker.person.lastName()
   return {
-    id: faker.string.uuid(),
+    id: faker.string.uuid(  ),
     firstName,
     lastName,
     username: faker.internet

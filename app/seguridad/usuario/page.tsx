@@ -1,11 +1,11 @@
 // En app/dashboard/unidades/page.tsx
 import { getUnidadesOrganicas } from "@/lib/api"; // Asegúrate que la ruta sea correcta
 import { UsersTable } from "./_components/usuario-table"; // Crearemos este componente a continuación
-import { users } from './data/users'
-import { userListSchema } from './data/schema'
+import { users } from '@/mock/seguridad/mock-usuario'
+import { userListSchema } from '@/schemas/seguridad/usuario-schema'
 import { columns } from './_components/users-columns'
-import UsersProvider from './context/users-context'
-import { Main } from './main'
+import UsersProvider from './_context/usuario-context'
+import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from './theme-switch'
 import { Header } from './header'
 import { ProfileDropdown } from './profile-dropdown'
