@@ -3,7 +3,7 @@ import { getUnidadesOrganicas } from "@/lib/api"; // Asegúrate que la ruta sea 
 import { UsersTable } from "./_components/usuario-table"; // Crearemos este componente a continuación
 import { users } from '@/mock/seguridad/mock-usuario'
 import { userListSchema } from '@/schemas/seguridad/usuario-schema'
-import { columns } from './_components/users-columns'
+import { columns } from './_components/usuario-table-column'
 import UsersProvider from './_context/usuario-context'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from './theme-switch'

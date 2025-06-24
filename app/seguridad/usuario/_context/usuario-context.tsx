@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { User } from '@/schemas/seguridad/usuario-schema'
 
-type UsersDialogType = 'invite' | 'add' | 'edit' | 'delete'
+type UsersDialogType = 'invite' | 'add' | 'edit' | 'delete' | 'view'
 
 interface UsersContextType {
   open: UsersDialogType | null
