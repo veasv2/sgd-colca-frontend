@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
     // Rutas que requieren autenticación
-    const protectedPaths = ['/dashboard', '/admin', '/documentos', '/sesiones', '/usuarios']
+    const protectedPaths = ['/dashboard', '/admin', '/documentos', '/sesiones', '/usuarios','/seguridad']
 
     // Rutas públicas (no requieren autenticación)
     const publicPaths = ['/sign-in', '/sign-up', '/'] // ← Agregada '/' como pública

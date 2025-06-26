@@ -18,23 +18,23 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
-import { useRouter } from 'next/navigation'
-import { login, saveSession } from '@/lib/auth/auth' // ← NUEVO: Importar servicio de auth
+import { useRouter, useSearchParams } from 'next/navigation' // ← NUEVO: Agregado useSearchParams
+import { login, saveSession } from '@/lib/auth/auth'
 
 type UserAuthFormProps = HTMLAttributes<HTMLFormElement>
 
 const formSchema = z.object({
   email: z
     .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
+    .min(1, { message: 'Por favor ingresa tu email' })
+    .email({ message: 'Dirección de email inválida' }),
   password: z
     .string()
     .min(1, {
-      message: 'Please enter your password',
+      message: 'Por favor ingresa tu contraseña',
     })
     .min(7, {
-      message: 'Password must be at least 7 characters long',
+      message: 'La contraseña debe tener al menos 7 caracteres',
     }),
 })
 
@@ -42,6 +42,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [authError, setAuthError] = useState('') // ← NUEVO: Estado para errores de auth
   const router = useRouter()
+  const searchParams = useSearchParams() // ← NUEVO: Para obtener parámetros de URL
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,7 +57,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setAuthError('') // Limpiar errores previos
     
     try {
-      // ← NUEVO: Usar servicio de autenticación
+      // Usar servicio de autenticación
       const result = await login({
         email: data.email,
         password: data.password
@@ -69,19 +70,25 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         // Guardar sesión
         saveSession(result.token)
         
-        // Redirigir al dashboard
-        router.push('/dashboard')
+        // ← NUEVO: Obtener la ruta de redirect o usar dashboard por defecto
+        const redirectTo = searchParams.get('redirect') || '/dashboard'
+        
+        // Redirigir a la ruta original o dashboard
+        router.push(redirectTo)
+        
+        // El loading se mantendrá hasta que la página cargue
       } else {
         // Credenciales incorrectas
+        setIsLoading(false) // ← Solo desactivar loading si hay error
         throw new Error(result.error || 'Error al iniciar sesión')
       }
       
     } catch (error) {
       // Manejar errores
+      setIsLoading(false) // ← Desactivar loading en caso de error
       setAuthError(error instanceof Error ? error.message : 'Error al iniciar sesión')
-    } finally {
-      setIsLoading(false)
     }
+    // ← REMOVIDO: finally block que desactivaba loading
   }
 
   return (
@@ -105,7 +112,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder='name@example.com' {...field} />
+                <Input placeholder='nombre@ejemplo.com' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -116,7 +123,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           name='password'
           render={({ field }) => (
             <FormItem className='relative'>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Contraseña</FormLabel>
               <FormControl>
                 <PasswordInput placeholder='********' {...field} />
               </FormControl>
@@ -125,13 +132,23 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 href='/forgot-password'
                 className='text-muted-foreground absolute -top-0.5 right-0 text-sm font-medium hover:opacity-75'
               >
-                Forgot password?
+                ¿Olvidaste tu contraseña?
               </Link>
             </FormItem>
           )}
         />
         <Button className='mt-2' disabled={isLoading}>
-          {isLoading ? 'Iniciando sesión...' : 'Login'} {/* ← NUEVO: Texto dinámico */}
+          {isLoading ? (
+            <div className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Iniciando sesión...
+            </div>
+          ) : (
+            'Iniciar Sesión'
+          )}
         </Button>
 
         <div className='relative my-2'>
@@ -140,7 +157,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
           <div className='relative flex justify-center text-xs uppercase'>
             <span className='bg-background text-muted-foreground px-2'>
-              Or continue with
+              O continúa con
             </span>
           </div>
         </div>

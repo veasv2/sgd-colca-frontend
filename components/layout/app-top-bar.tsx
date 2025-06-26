@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/context/theme-context"
 import { useSidebar } from "@/components/ui/sidebar"
+import { useRouter } from "next/navigation" // ← NUEVO: Importar router
+import { clearSession } from "@/lib/auth/auth" // ← NUEVO: Importar función de logout
 import { 
   Sun, 
   Moon, 
@@ -38,12 +40,22 @@ interface TopBarProps {
 export function AppTopBar({ user }: TopBarProps) {
   const { theme, setTheme } = useTheme()
   const { toggleSidebar } = useSidebar()
+  const router = useRouter() // ← NUEVO: Hook de router
 
   // Usuario por defecto si no se pasa
   const currentUser = user || {
     name: "Juan Pérez",
     email: "juan@sgdcolca.com",
     avatar: undefined
+  }
+
+  // ← NUEVO: Función para cerrar sesión
+  const handleLogout = () => {
+    // Limpiar sesión (elimina la cookie sgd_user)
+    clearSession()
+    
+    // Redirigir al login
+    router.push('/')
   }
 
   // Obtener iniciales del nombre
@@ -183,7 +195,10 @@ export function AppTopBar({ user }: TopBarProps) {
               Configuración
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem 
+              className="text-red-600"
+              onClick={handleLogout} // ← NUEVO: Conectar función de logout
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar sesión
             </DropdownMenuItem>

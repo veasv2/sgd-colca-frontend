@@ -22,7 +22,7 @@ async function loginInternal(credentials: LoginCredentials): Promise<LoginRespon
   await new Promise(resolve => setTimeout(resolve, 1000))
   
   const validEmail = 'veas.v2@gmail.com'
-  const validPassword = 'd$s1gDA1'
+  const validPassword = '123123123'
   
   if (credentials.email === validEmail && credentials.password === validPassword) {
     return {
