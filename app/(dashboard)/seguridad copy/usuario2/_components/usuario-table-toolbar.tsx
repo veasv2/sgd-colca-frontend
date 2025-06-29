@@ -1,11 +1,10 @@
-// app/(dashboard)/seguridad/usuario/_components/usuario-table-toolbar.tsx
 "use client"
 
 import { Cross2Icon } from '@radix-ui/react-icons'
 import { Table } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { tipoUsuarioOptions, estadoOptions } from '../data/usuario-data'
+import { userTypes } from '../data/usuario-data'
 import { DataTableFacetedFilter } from '@/components/table/table-faceted-filter'
 import { DataTableViewOptions } from '@/components/table/table-view-options'
 
@@ -22,7 +21,7 @@ export function DataTableToolbar<TData>({
     <div className='flex items-center justify-between'>
       <div className='flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2'>
         <Input
-          placeholder='Buscar usuarios...'
+          placeholder='Filter users...'
           value={
             (table.getColumn('username')?.getFilterValue() as string) ?? ''
           }
@@ -32,24 +31,23 @@ export function DataTableToolbar<TData>({
           className='h-8 w-[150px] lg:w-[250px]'
         />
         <div className='flex gap-x-2'>
-          {table.getColumn('estado') && (
+          {table.getColumn('status') && (
             <DataTableFacetedFilter
-              column={table.getColumn('estado')}
-              title='Estado'
-              options={estadoOptions.map((estado) => ({
-                label: estado.label,
-                value: estado.value,
-              }))}
+              column={table.getColumn('status')}
+              title='Status'
+              options={[
+                { label: 'Active', value: 'active' },
+                { label: 'Inactive', value: 'inactive' },
+                { label: 'Invited', value: 'invited' },
+                { label: 'Suspended', value: 'suspended' },
+              ]}
             />
           )}
-          {table.getColumn('tipo_usuario') && (
+          {table.getColumn('role') && (
             <DataTableFacetedFilter
-              column={table.getColumn('tipo_usuario')}
-              title='Tipo de Usuario'
-              options={tipoUsuarioOptions.map((tipo) => ({
-                label: tipo.label,
-                value: tipo.value,
-              }))}
+              column={table.getColumn('role')}
+              title='Role'
+              options={userTypes.map((t) => ({ ...t }))}
             />
           )}
         </div>
@@ -59,7 +57,7 @@ export function DataTableToolbar<TData>({
             onClick={() => table.resetColumnFilters()}
             className='h-8 px-2 lg:px-3'
           >
-            Limpiar Filtros
+            Reset
             <Cross2Icon className='ml-2 h-4 w-4' />
           </Button>
         )}

@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 
-const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL || "http://localhost:8000"
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || "http://localhost:8000"
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Llamar al endpoint de logout de FastAPI (si existe)
     try {
-      const fastApiResponse = await fetch(`${FASTAPI_BASE_URL}/api/v1/auth/logout`, {
+      const fastApiResponse = await fetch(`${BACKEND_BASE_URL}/api/v1/auth/logout`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

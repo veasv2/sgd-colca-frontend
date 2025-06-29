@@ -19,22 +19,22 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { login } from '@/lib/auth/auth' // ✅ Import del archivo unificado
+import { AuthManager } from '@/lib/auth/auth-manager' // ✅ Import correcto
 
 type UserAuthFormProps = HTMLAttributes<HTMLFormElement>
 
 const formSchema = z.object({
-  email: z
+  username_or_email: z
     .string()
-    .min(1, { message: 'Por favor ingresa tu email' })
-    .email({ message: 'Dirección de email inválida' }),
+    .min(1, { message: 'Por favor ingresa tu usuario o email' })
+    .min(3, { message: 'Debe tener al menos 3 caracteres' }),
   password: z
     .string()
     .min(1, {
       message: 'Por favor ingresa tu contraseña',
     })
-    .min(7, {
-      message: 'La contraseña debe tener al menos 7 caracteres',
+    .min(8, {
+      message: 'La contraseña debe tener al menos 8 caracteres',
     }),
 })
 
@@ -47,7 +47,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      username_or_email: '',
       password: '',
     },
   })
@@ -57,34 +57,42 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setAuthError('')
     
     try {
-      // ✅ Usar la función unificada de login
-      const result = await login({
-        email: data.email,
+      console.log('🔐 Submitting login form:', { username_or_email: data.username_or_email })
+      
+      // ✅ Usar AuthManager para login
+      const user = await AuthManager.login({
+        username_or_email: data.username_or_email,
         password: data.password
       })
       
-      if (result.success) {
-        // Login exitoso - la sesión ya se guardó automáticamente
-        console.log('Login exitoso!', result.data?.user)
-        
-        // Obtener la ruta de redirect o usar dashboard por defecto
-        const redirectTo = searchParams.get('redirect') || '/dashboard'
-        
-        // Redirigir a la ruta original o dashboard
-        router.push(redirectTo)
-        
-        // El loading se mantendrá hasta que la página cargue
-      } else {
-        // ✅ Manejar errores de autenticación
-        setIsLoading(false)
-        setAuthError(result.error || 'Error al iniciar sesión')
-      }
+      console.log('✅ Login exitoso!', { user: user.username })
+      
+      // Obtener la ruta de redirect o usar dashboard por defecto
+      const redirectTo = searchParams.get('redirect') || '/dashboard'
+      
+      // Redirigir a la ruta original o dashboard
+      router.push(redirectTo)
       
     } catch (error) {
-      // ✅ Manejar errores de conexión
       setIsLoading(false)
-      console.error('Error de conexión:', error)
-      setAuthError('Error de conexión. Verifica que el servidor esté funcionando.')
+      
+      console.error('❌ Login error caught:', error)
+      
+      let errorMessage = 'Error desconocido durante el login'
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      } else if (error && typeof error === 'object') {
+        // Si es un objeto, intentar extraer el mensaje
+        errorMessage = (error as any).message || 
+                     (error as any).detail || 
+                     (error as any).error || 
+                     'Error de servidor'
+      }
+      
+      setAuthError(errorMessage)
     }
   }
 
@@ -104,12 +112,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
         <FormField
           control={form.control}
-          name='email'
+          name='username_or_email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Usuario o Email</FormLabel>
               <FormControl>
-                <Input placeholder='admin@colca.gob.pe' {...field} />
+                <Input placeholder='admin@colca.gob.pe o admin' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -173,7 +181,36 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm">
             <p className="font-medium text-blue-800">Credenciales de prueba:</p>
             <p className="text-blue-600">Email: admin@colca.gob.pe</p>
+            <p className="text-blue-600">Usuario: admin</p>
             <p className="text-blue-600">Password: admin123</p>
+            <div className="mt-2 space-y-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  form.setValue('username_or_email', 'admin@colca.gob.pe')
+                  form.setValue('password', 'admin123')
+                }}
+                disabled={isLoading}
+                className="text-xs mr-2"
+              >
+                Usar Email
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  form.setValue('username_or_email', 'admin')
+                  form.setValue('password', 'admin123')
+                }}
+                disabled={isLoading}
+                className="text-xs"
+              >
+                Usar Usuario
+              </Button>
+            </div>
           </div>
         )}
       </form>

@@ -1,5 +1,3 @@
-//app/(dashboard)/seguridad/usuario/_components/usuario-table.tsx
-
 "use client"
 
 import { useState } from 'react'
@@ -31,7 +29,6 @@ import { DataTablePagination } from '@/components/table/table-pagination'
 import { DataTableToolbar } from './usuario-table-toolbar'
 
 declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
     className: string
   }
@@ -71,39 +68,35 @@ export function UsersTable({ columns, data }: DataTableProps) {
   })
 
   return (
-    <div className='w-full space-y-4'>
+    <div className='space-y-4'>
       <DataTableToolbar table={table} />
-      
-      {/* Contenedor de la tabla con fondo blanco y bordes redondeados */}
-      <div className='bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden'>
+
+      <div className='rounded-md border'>
         <div className='overflow-x-auto'>
           <Table className='min-w-full'>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow 
-                  key={headerGroup.id} 
-                  className='border-b border-gray-200 bg-gray-50/50 hover:bg-gray-50/50'
+                <TableRow
+                  key={headerGroup.id}
+                  className='group/row bg-muted/50 hover:bg-muted/50 border-b border-muted'
                 >
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        colSpan={header.colSpan}
-                        className={`
-                          ${header.column.columnDef.meta?.className ?? ''}
-                          text-left text-xs font-semibold text-gray-600 uppercase tracking-wider
-                          py-1.5 bg-gray-50/50 h-8 whitespace-nowrap
-                        `}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    )
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className={`
+                        ${header.column.columnDef.meta?.className ?? ''}
+                        text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide py-1.5 h-9 whitespace-nowrap
+                      `}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -114,10 +107,10 @@ export function UsersTable({ columns, data }: DataTableProps) {
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
                     className={`
-                      group/row border-b border-gray-100 last:border-b-0
-                      hover:bg-gray-50/50 transition-colors duration-150
-                      ${row.getIsSelected() ? 'bg-blue-50/50' : 'bg-white'}
-                      ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/20'}
+                      group/row border-b border-muted/20
+                      transition-colors duration-150
+                      ${row.getIsSelected() ? 'bg-blue-50/50' : ''}
+                      ${index % 2 === 0 ? 'bg-white' : 'bg-muted/20'}
                     `}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -125,7 +118,7 @@ export function UsersTable({ columns, data }: DataTableProps) {
                         key={cell.id}
                         className={`
                           ${cell.column.columnDef.meta?.className ?? ''}
-                          py-2 text-sm text-gray-900 border-b-0 h-12 whitespace-nowrap
+                          py-2 text-sm text-foreground border-b-0 whitespace-nowrap
                         `}
                       >
                         {flexRender(
@@ -140,7 +133,7 @@ export function UsersTable({ columns, data }: DataTableProps) {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className='h-24 text-center text-gray-500'
+                    className='h-24 text-center text-muted-foreground'
                   >
                     <div className='flex flex-col items-center justify-center space-y-2'>
                       <div className='text-4xl text-gray-300'>📋</div>
@@ -154,7 +147,7 @@ export function UsersTable({ columns, data }: DataTableProps) {
           </Table>
         </div>
       </div>
-      
+
       <DataTablePagination table={table} />
     </div>
   )

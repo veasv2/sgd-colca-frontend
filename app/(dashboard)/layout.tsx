@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: Props) {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant='floating' />
       <SidebarInset className="border-0">
         <AppTopBar />
         <div className="flex flex-1 flex-col">

@@ -1,47 +1,95 @@
+// middleware.ts
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+// Configuración de rutas
+const PROTECTED_PATHS = [
+  '/dashboard', 
+  '/admin', 
+  '/documentos', 
+  '/sesiones', 
+  '/usuarios',
+  '/seguridad'
+]
+
+const PUBLIC_PATHS = ['/sign-in', '/sign-up', '/']
+
+const AUTH_PATHS = ['/sign-in', '/sign-up']
+
+const TOKEN_COOKIE = 'sgd_user'
+
 export function middleware(request: NextRequest) {
-    // Rutas que requieren autenticación
-    const protectedPaths = ['/dashboard', '/admin', '/documentos', '/sesiones', '/usuarios','/seguridad']
+  const { pathname } = request.nextUrl
+  const authToken = request.cookies.get(TOKEN_COOKIE)?.value
 
-    // Rutas públicas (no requieren autenticación)
-    const publicPaths = ['/sign-in', '/sign-up', '/'] // ← Agregada '/' como pública
+  // Verificar si la ruta requiere autenticación
+  const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path))
+  const isPublicPath = PUBLIC_PATHS.includes(pathname)
+  const isAuthPath = AUTH_PATHS.includes(pathname)
 
-    const { pathname } = request.nextUrl
+  // Debug en desarrollo
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🛡️ Middleware:', {
+      pathname,
+      hasToken: !!authToken,
+      isProtectedPath,
+      isPublicPath,
+      isAuthPath
+    })
+  }
 
-    // Verificar si la ruta actual requiere autenticación
-    const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
-    const isPublicPath = publicPaths.includes(pathname)
+  // Validar token básico (opcional: verificar expiración)
+  const isValidToken = authToken && authToken.length > 10
 
-    // Obtener el token de autenticación de las cookies
-    const authToken = request.cookies.get('sgd_user')?.value
+  // **Proteger rutas que requieren autenticación**
+  if (isProtectedPath && !isValidToken) {
+    const signInUrl = new URL('/sign-in', request.url)
+    signInUrl.searchParams.set('redirect', pathname)
+    signInUrl.searchParams.set('reason', 'auth_required')
+    
+    console.log('❌ Redirecting to sign-in:', pathname)
+    return NextResponse.redirect(signInUrl)
+  }
 
-    // Si es una ruta protegida y no hay token, redirigir al sign-in
-    if (isProtectedPath && !authToken) {
-        const signInUrl = new URL('/sign-in', request.url) // ← Cambiado a /sign-in
-        signInUrl.searchParams.set('redirect', pathname)
-        return NextResponse.redirect(signInUrl)
-    }
+  // **Redirigir usuarios autenticados que intentan acceder a auth pages**
+  if (isValidToken && isAuthPath) {
+    const redirectTo = request.nextUrl.searchParams.get('redirect') || '/dashboard'
+    console.log('✅ Redirecting authenticated user to:', redirectTo)
+    return NextResponse.redirect(new URL(redirectTo, request.url))
+  }
 
-    // Si el usuario está autenticado y trata de acceder al sign-in, redirigir al dashboard
-    if (authToken && (pathname === '/sign-in' || pathname === '/sign-up')) { // ← Cambiado
-        return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
+  // **Redirigir usuarios autenticados desde home a dashboard**
+  if (isValidToken && pathname === '/') {
+    console.log('🏠 Redirecting from home to dashboard')
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
 
-    // Si accede a la raíz y está autenticado, redirigir al dashboard
-    if (authToken && pathname === '/') {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
+  // **Agregar headers de seguridad**
+  const response = NextResponse.next()
+  
+  // Headers de seguridad
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  
+  // Agregar info del usuario autenticado al request (opcional)
+  if (isValidToken) {
+    response.headers.set('X-User-Authenticated', 'true')
+  }
 
-    // ← REMOVIDO: Ya no redirige '/' a login cuando no hay token
-    // La página '/' ahora es pública y manejará la lógica internamente
-
-    return NextResponse.next()
+  return response
 }
 
 export const config = {
-    matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
+  matcher: [
+    /*
+     * Coincide con todas las rutas excepto:
+     * - API routes (/api)
+     * - Archivos estáticos (_next/static)
+     * - Imágenes (_next/image)
+     * - Favicon y otros archivos públicos
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
+  ],
 }

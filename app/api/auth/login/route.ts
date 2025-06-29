@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { loginSchema } from "@/schemas/seguridad/auth-schema"
 
 // URL de tu API de FastAPI
-const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL || "http://localhost:8000"
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL || "http://localhost:8000"
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = validationResult.data
     
     // Llamar a tu API de FastAPI
-    const fastApiResponse = await fetch(`${FASTAPI_BASE_URL}/api/v1/auth/login`, {
+    const fastApiResponse = await fetch(`${BACKEND_BASE_URL}/api/v1/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
