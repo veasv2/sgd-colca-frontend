@@ -1,6 +1,7 @@
 // components/top-bar.tsx
 "use client"
 
+import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,8 +15,7 @@ import {
 import { useTheme } from "@/context/theme-context"
 import { useSidebar } from "@/components/ui/sidebar"
 import { useRouter } from "next/navigation"
-import { logoutAndRedirect, getCurrentUser } from "@/lib/auth/auth" // ✅ Import correcto
-import { useState, useEffect } from "react" // ✅ Para manejar el estado del usuario
+import { useAuth } from "@/hooks/useAuth"
 import { 
   Sun, 
   Moon, 
@@ -26,64 +26,53 @@ import {
   Bell,
   Search,
   Check,
-  Menu,
   PanelLeft,
-  Loader2 // ✅ Para loading del logout
+  Loader2
 } from "lucide-react"
 
-interface TopBarProps {
-  user?: {
-    name: string
-    email: string
-    avatar?: string
-  }
-}
-
-export function AppTopBar({ user }: TopBarProps) {
+export function AppTopBar() {
   const { theme, setTheme } = useTheme()
   const { toggleSidebar } = useSidebar()
   const router = useRouter()
   
-  // ✅ Estados para el logout y datos del usuario
+  const { user, logout } = useAuth()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [currentUser, setCurrentUser] = useState(user || {
-    name: "Usuario",
-    email: "usuario@sgdcolca.com",
-    avatar: undefined
-  })
 
-  // ✅ Cargar datos del usuario autenticado al montar el componente
-  useEffect(() => {
-    if (!user) {
-      const authUser = getCurrentUser()
-      if (authUser) {
-        setCurrentUser({
-          name: `${authUser.nombres} ${authUser.apellidos}`,
-          email: authUser.email,
-          avatar: undefined // Podrías agregar avatar si lo tienes en el modelo
-        })
-      }
-    }
-  }, [user])
-
-  // ✅ Función mejorada para cerrar sesión
   const handleLogout = async () => {
-    if (isLoggingOut) return // Prevenir múltiples clicks
+    if (isLoggingOut) return
     
     setIsLoggingOut(true)
     
     try {
-      // Usar la función del archivo unificado
-      await logoutAndRedirect('/sign-in')
+      await logout('/sign-in')
     } catch (error) {
       console.error('Error durante logout:', error)
-      // En caso de error, forzar redirect
       window.location.href = '/sign-in'
     }
-    // No necesitamos setIsLoggingOut(false) porque se redirige
   }
 
-  // Obtener iniciales del nombre
+  // ✅ Fallback simple si no hay usuario (edge case)
+  if (!user) {
+    return (
+      <div className="flex h-14 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 pr-2">
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <PanelLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-lg font-semibold">SGD Colca</h1>
+        </div>
+        <Loader2 className="h-4 w-4 animate-spin" />
+      </div>
+    )
+  }
+
+  // ✅ Datos del usuario simplificados
+  const currentUser = {
+    name: `${user.nombres} ${user.apellidos}`,
+    email: user.email,
+    avatar: undefined
+  }
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -95,14 +84,10 @@ export function AppTopBar({ user }: TopBarProps) {
 
   const getThemeIcon = () => {
     switch (theme) {
-      case 'light':
-        return <Sun className="h-4 w-4" />
-      case 'dark':
-        return <Moon className="h-4 w-4" />
-      case 'system':
-        return <Monitor className="h-4 w-4" />
-      default:
-        return <Monitor className="h-4 w-4" />
+      case 'light': return <Sun className="h-4 w-4" />
+      case 'dark': return <Moon className="h-4 w-4" />
+      case 'system': return <Monitor className="h-4 w-4" />
+      default: return <Monitor className="h-4 w-4" />
     }
   }
 
@@ -122,7 +107,7 @@ export function AppTopBar({ user }: TopBarProps) {
         <h1 className="text-lg font-semibold">SGD Colca</h1>
       </div>
 
-      {/* Centro - Barra de búsqueda (opcional) */}
+      {/* Centro - Barra de búsqueda */}
       <div className="flex-1 max-w-md mx-4">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -159,9 +144,7 @@ export function AppTopBar({ user }: TopBarProps) {
             >
               <Sun className="mr-2 h-4 w-4" />
               Claro
-              {theme === "light" && (
-                <Check className="ml-auto h-4 w-4" />
-              )}
+              {theme === "light" && <Check className="ml-auto h-4 w-4" />}
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => setTheme("dark")}
@@ -169,9 +152,7 @@ export function AppTopBar({ user }: TopBarProps) {
             >
               <Moon className="mr-2 h-4 w-4" />
               Oscuro
-              {theme === "dark" && (
-                <Check className="ml-auto h-4 w-4" />
-              )}
+              {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => setTheme("system")}
@@ -179,9 +160,7 @@ export function AppTopBar({ user }: TopBarProps) {
             >
               <Monitor className="mr-2 h-4 w-4" />
               Sistema
-              {theme === "system" && (
-                <Check className="ml-auto h-4 w-4" />
-              )}
+              {theme === "system" && <Check className="ml-auto h-4 w-4" />}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -207,23 +186,21 @@ export function AppTopBar({ user }: TopBarProps) {
                 <p className="text-xs leading-none text-muted-foreground">
                   {currentUser.email}
                 </p>
+                <p className="text-xs leading-none text-muted-foreground capitalize">
+                  {user.tipo_usuario.toLowerCase()}
+                </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => router.push('/profile')}
-            >
+            <DropdownMenuItem onClick={() => router.push('/profile')}>
               <User className="mr-2 h-4 w-4" />
               Perfil
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => router.push('/settings')}
-            >
+            <DropdownMenuItem onClick={() => router.push('/settings')}>
               <Settings className="mr-2 h-4 w-4" />
               Configuración
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {/* ✅ Botón de logout mejorado */}
             <DropdownMenuItem 
               className="text-red-600 focus:text-red-600"
               onClick={handleLogout}
