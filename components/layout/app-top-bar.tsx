@@ -13,8 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/context/theme-context"
 import { useSidebar } from "@/components/ui/sidebar"
-import { useRouter } from "next/navigation" // ← NUEVO: Importar router
-import { clearSession } from "@/lib/auth/auth" // ← NUEVO: Importar función de logout
+import { useRouter } from "next/navigation"
+import { logoutAndRedirect, getCurrentUser } from "@/lib/auth/auth" // ✅ Import correcto
+import { useState, useEffect } from "react" // ✅ Para manejar el estado del usuario
 import { 
   Sun, 
   Moon, 
@@ -26,7 +27,8 @@ import {
   Search,
   Check,
   Menu,
-  PanelLeft
+  PanelLeft,
+  Loader2 // ✅ Para loading del logout
 } from "lucide-react"
 
 interface TopBarProps {
@@ -40,22 +42,45 @@ interface TopBarProps {
 export function AppTopBar({ user }: TopBarProps) {
   const { theme, setTheme } = useTheme()
   const { toggleSidebar } = useSidebar()
-  const router = useRouter() // ← NUEVO: Hook de router
-
-  // Usuario por defecto si no se pasa
-  const currentUser = user || {
-    name: "Juan Pérez",
-    email: "juan@sgdcolca.com",
+  const router = useRouter()
+  
+  // ✅ Estados para el logout y datos del usuario
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [currentUser, setCurrentUser] = useState(user || {
+    name: "Usuario",
+    email: "usuario@sgdcolca.com",
     avatar: undefined
-  }
+  })
 
-  // ← NUEVO: Función para cerrar sesión
-  const handleLogout = () => {
-    // Limpiar sesión (elimina la cookie sgd_user)
-    clearSession()
+  // ✅ Cargar datos del usuario autenticado al montar el componente
+  useEffect(() => {
+    if (!user) {
+      const authUser = getCurrentUser()
+      if (authUser) {
+        setCurrentUser({
+          name: `${authUser.nombres} ${authUser.apellidos}`,
+          email: authUser.email,
+          avatar: undefined // Podrías agregar avatar si lo tienes en el modelo
+        })
+      }
+    }
+  }, [user])
+
+  // ✅ Función mejorada para cerrar sesión
+  const handleLogout = async () => {
+    if (isLoggingOut) return // Prevenir múltiples clicks
     
-    // Redirigir al login
-    router.push('/')
+    setIsLoggingOut(true)
+    
+    try {
+      // Usar la función del archivo unificado
+      await logoutAndRedirect('/sign-in')
+    } catch (error) {
+      console.error('Error durante logout:', error)
+      // En caso de error, forzar redirect
+      window.location.href = '/sign-in'
+    }
+    // No necesitamos setIsLoggingOut(false) porque se redirige
   }
 
   // Obtener iniciales del nombre
@@ -77,7 +102,7 @@ export function AppTopBar({ user }: TopBarProps) {
       case 'system':
         return <Monitor className="h-4 w-4" />
       default:
-        return <Monitor className="h-4 w-4" /> // Fallback
+        return <Monitor className="h-4 w-4" />
     }
   }
 
@@ -85,7 +110,6 @@ export function AppTopBar({ user }: TopBarProps) {
     <div className="flex h-14 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 pr-2">
       {/* Lado izquierdo - Botón de sidebar y título */}
       <div className="flex items-center space-x-4">
-        {/* Botón para colapsar sidebar */}
         <Button 
           variant="ghost" 
           size="icon"
@@ -186,21 +210,31 @@ export function AppTopBar({ user }: TopBarProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => router.push('/profile')}
+            >
               <User className="mr-2 h-4 w-4" />
               Perfil
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => router.push('/settings')}
+            >
               <Settings className="mr-2 h-4 w-4" />
               Configuración
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {/* ✅ Botón de logout mejorado */}
             <DropdownMenuItem 
-              className="text-red-600"
-              onClick={handleLogout} // ← NUEVO: Conectar función de logout
+              className="text-red-600 focus:text-red-600"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              Cerrar sesión
+              {isLoggingOut ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <LogOut className="mr-2 h-4 w-4" />
+              )}
+              {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar sesión'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

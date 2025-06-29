@@ -18,8 +18,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
-import { useRouter, useSearchParams } from 'next/navigation' // ← NUEVO: Agregado useSearchParams
-import { login, saveSession } from '@/lib/auth/auth'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { login } from '@/lib/auth/auth' // ✅ Import del archivo unificado
 
 type UserAuthFormProps = HTMLAttributes<HTMLFormElement>
 
@@ -40,9 +40,9 @@ const formSchema = z.object({
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [authError, setAuthError] = useState('') // ← NUEVO: Estado para errores de auth
+  const [authError, setAuthError] = useState('')
   const router = useRouter()
-  const searchParams = useSearchParams() // ← NUEVO: Para obtener parámetros de URL
+  const searchParams = useSearchParams()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,23 +54,20 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    setAuthError('') // Limpiar errores previos
+    setAuthError('')
     
     try {
-      // Usar servicio de autenticación
+      // ✅ Usar la función unificada de login
       const result = await login({
         email: data.email,
         password: data.password
       })
       
-      if (result.success && result.token) {
-        // Login exitoso
-        console.log('Login exitoso!', result.user)
+      if (result.success) {
+        // Login exitoso - la sesión ya se guardó automáticamente
+        console.log('Login exitoso!', result.data?.user)
         
-        // Guardar sesión
-        saveSession(result.token)
-        
-        // ← NUEVO: Obtener la ruta de redirect o usar dashboard por defecto
+        // Obtener la ruta de redirect o usar dashboard por defecto
         const redirectTo = searchParams.get('redirect') || '/dashboard'
         
         // Redirigir a la ruta original o dashboard
@@ -78,17 +75,17 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         
         // El loading se mantendrá hasta que la página cargue
       } else {
-        // Credenciales incorrectas
-        setIsLoading(false) // ← Solo desactivar loading si hay error
-        throw new Error(result.error || 'Error al iniciar sesión')
+        // ✅ Manejar errores de autenticación
+        setIsLoading(false)
+        setAuthError(result.error || 'Error al iniciar sesión')
       }
       
     } catch (error) {
-      // Manejar errores
-      setIsLoading(false) // ← Desactivar loading en caso de error
-      setAuthError(error instanceof Error ? error.message : 'Error al iniciar sesión')
+      // ✅ Manejar errores de conexión
+      setIsLoading(false)
+      console.error('Error de conexión:', error)
+      setAuthError('Error de conexión. Verifica que el servidor esté funcionando.')
     }
-    // ← REMOVIDO: finally block que desactivaba loading
   }
 
   return (
@@ -98,7 +95,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         className={cn('grid gap-3', className)}
         {...props}
       >
-        {/* ← NUEVO: Mostrar error de autenticación si existe */}
+        {/* Mostrar error de autenticación si existe */}
         {authError && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
             {authError}
@@ -112,7 +109,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder='nombre@ejemplo.com' {...field} />
+                <Input placeholder='admin@colca.gob.pe' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -170,6 +167,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             <IconBrandFacebook className='h-4 w-4' /> Facebook
           </Button>
         </div>
+
+        {/* ✅ Credenciales de prueba para desarrollo */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm">
+            <p className="font-medium text-blue-800">Credenciales de prueba:</p>
+            <p className="text-blue-600">Email: admin@colca.gob.pe</p>
+            <p className="text-blue-600">Password: admin123</p>
+          </div>
+        )}
       </form>
     </Form>
   )
