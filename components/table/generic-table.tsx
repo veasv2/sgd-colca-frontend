@@ -1,21 +1,8 @@
-// app/(dashboard)/seguridad/usuario2/_components/usuario-table.tsx
 "use client"
 
-import { useState } from 'react'
 import {
   ColumnDef,
-  ColumnFiltersState,
-  RowData,
-  SortingState,
-  VisibilityState,
   flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
 } from '@tanstack/react-table'
 import {
   Table,
@@ -25,53 +12,53 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { User } from '@/schemas/seguridad/usuario2-schema'
 import { DataTablePagination } from '@/components/table/table-pagination'
-import { DataTableToolbar } from './usuario-table-toolbar'
+import { GenericTableToolbar } from './generic-table-toolbar'
+import { GenericTableBarButtons } from './generic-table-bar-buttons'
+import { useGenericTable } from '@/hooks/useGenericTable'
+import { TableConfig } from '@/types/table'
+
+import { RowData } from '@tanstack/react-table'
 
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
-    className: string
+    className?: string
   }
 }
 
-interface DataTableProps {
-  columns: ColumnDef<User>[]
-  data: User[]
+interface GenericTableProps<T> {
+  columns: ColumnDef<T>[]
+  data: T[]
+  config?: TableConfig<T>
+  tableConfig?: {
+    initialPageSize?: number
+    enableRowSelection?: boolean
+  }
 }
 
-export function UsersTable({ columns, data }: DataTableProps) {
-  const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [sorting, setSorting] = useState<SortingState>([])
-
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters,
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
+export function GenericTable<T>({ 
+  columns, 
+  data, 
+  config,
+  tableConfig 
+}: GenericTableProps<T>) {
+  const { table } = useGenericTable({ 
+    data, 
+    columns, 
+    config: tableConfig 
   })
 
   return (
     <div className='space-y-4'>
-      <DataTableToolbar table={table} />
+      {config?.buttons && (
+        <div className='flex justify-end'>
+          <GenericTableBarButtons buttons={config.buttons} />
+        </div>
+      )}
+      
+      <GenericTableToolbar table={table} config={config} />
+      
       <div className='rounded-md border'>
         <Table>
           <TableHeader>
